@@ -15,7 +15,7 @@ public class MainConsole
 
 		while (true)
 		{
-			PrintWriter out = new PrintWriter(System.out);
+			PrintWriter out = new PrintWriter(System.out, true);
 			Scanner in = new Scanner(System.in);
 			out.println("Welcome in transfer it!!. Choose work mode");
 			out.println(SERVER_MODE + ". Recive file");
