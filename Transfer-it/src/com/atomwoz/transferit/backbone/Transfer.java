@@ -7,7 +7,7 @@ public class Transfer
 
 	public static void doAsServer()
 	{
-		PrintWriter pw = new PrintWriter(System.out);
+		PrintWriter pw = new PrintWriter(System.out, true);
 	}
 
 	public static void doAsClient()
