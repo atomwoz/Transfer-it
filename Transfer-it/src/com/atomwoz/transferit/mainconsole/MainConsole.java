@@ -15,26 +15,28 @@ public class MainConsole
 
 		while (true)
 		{
-			PrintWriter out = new PrintWriter(System.out, true);
-			Scanner in = new Scanner(System.in);
-			out.println("Welcome in transfer it!!. Choose work mode");
-			out.println(SERVER_MODE + ". Recive file");
-			out.println(CLIENT_MODE + ". Send file");
-			int mode = in.nextInt();
-			if (mode == SERVER_MODE)
+			try (PrintWriter out = new PrintWriter(System.out, true); Scanner in = new Scanner(System.in))
 			{
-				Transfer.doAsServer();
-			}
-			else if (mode == CLIENT_MODE)
-			{
-				Transfer.doAsClient();
-			}
-			else
-			{
-				out.println("Wrong option specified, try again");
-				for (int i = 0; i < 3; i++)
-					out.println();
-				continue;
+				;
+				out.println("Welcome in transfer it!!. Choose work mode");
+				out.println(SERVER_MODE + ". Recive file");
+				out.println(CLIENT_MODE + ". Send file");
+				int mode = in.nextInt();
+				if (mode == SERVER_MODE)
+				{
+					Transfer.doAsServer();
+				}
+				else if (mode == CLIENT_MODE)
+				{
+					Transfer.doAsClient();
+				}
+				else
+				{
+					out.println("Wrong option specified, try again");
+					for (int i = 0; i < 3; i++)
+						out.println();
+					continue;
+				}
 			}
 		}
 	}
