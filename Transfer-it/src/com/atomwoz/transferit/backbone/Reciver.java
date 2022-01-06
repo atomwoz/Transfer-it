@@ -1,27 +1,34 @@
 package com.atomwoz.transferit.backbone;
 
+import static com.atomwoz.transferit.backbone.Configuration.MAX_PAYLOAD_SIZE;
 import static com.atomwoz.transferit.backbone.Configuration.TRANSFER_OK;
 import static com.atomwoz.transferit.backbone.Configuration.TRANSFER_REQ;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.DatagramSocket;
-import java.net.SocketException;
+import java.net.ServerSocket;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
 
 public class Reciver extends Transfer
 {
 	Path writePath;
+	ServerSocket controlSocket;
+	ByteBuffer buffer = ByteBuffer.allocate(MAX_PAYLOAD_SIZE);
 
 	public Reciver(int port, Path writePath, PrintWriter err)
 	{
 		try
 		{
-			socket = new DatagramSocket(port);
+			controlSocket = new ServerSocket(port);
 			this.writePath = writePath;
 		}
-		catch (SocketException e)
+		catch (IOException e)
 		{
 			err.println("[ERROR] I can't listen on port " + port
 					+ ", check that it is not occupied, and you have access to open the port in system.");
@@ -39,7 +46,8 @@ public class Reciver extends Transfer
 			{
 				out.print("I'm waiting for incoming files....");
 				out.flush();
-				readed = reciveString();
+				configureControlSocket(controlSocket.accept());
+				readed = reciveControlString();
 				if (readed.endsWith("\u0000"))
 				{
 					String[] header = readed.split("\u0000");
@@ -62,8 +70,25 @@ public class Reciver extends Transfer
 								answer = answer.toLowerCase();
 								if (answer.equals("yes") || answer.equals("y"))
 								{
-									sendString(TRANSFER_OK);
-									// TODO Recive file
+									Path superPath = Paths.get(writePath.toAbsolutePath().toString() + "/" + fileName)
+											.normalize();
+									sendControlString(TRANSFER_OK);
+									try (FileChannel fc = (FileChannel) Files.newByteChannel(superPath,
+											StandardOpenOption.WRITE, StandardOpenOption.CREATE))
+									{
+										int maximum = (int) (fileSize / MAX_PAYLOAD_SIZE);
+										for (int i = 0; i < maximum + 1; i++)
+										{
+											byte[] arr = reciveByteArray();
+											buffer = ByteBuffer.allocate(arr.length);
+											buffer.put(arr);
+											buffer.rewind();
+											out.print("\f Transfered " + map(i, 0, maximum, 0, 100) + "%");
+											out.flush();
+											fc.write(buffer);
+										}
+										out.println("Transfer completed");
+									}
 								}
 								else
 								{
@@ -89,7 +114,7 @@ public class Reciver extends Transfer
 				{
 					throw new WrongHeaderException("To big header was send");
 				}
-				socket.close();
+				controlSocket.close();
 			}
 			catch (WrongHeaderException e)
 			{
@@ -98,6 +123,11 @@ public class Reciver extends Transfer
 			catch (IOException e)
 			{
 				err.println("[ERROR] Unexcepted network error ocured, try to restart app and recconect.");
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				err.println("Unexcpeted error occured");
 			}
 			finally
 			{

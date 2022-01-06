@@ -5,8 +5,6 @@ import static com.atomwoz.transferit.backbone.Configuration.DEFAULT_PORT;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
@@ -46,6 +44,7 @@ public class MainConsole
 				{
 					out.println("Give me full path to folder where you want to save downloaded files: ");
 					String localization = in.nextLine();
+					// String localization = "I:";
 					File file = new File(localization);
 					if (!file.isDirectory())
 					{
@@ -55,6 +54,7 @@ public class MainConsole
 					out.print("Write me port on which i have to listen [" + DEFAULT_PORT + "]: ");
 					out.flush();
 					String rawPort = in.nextLine();
+					// String rawPort = "";
 					int port = DEFAULT_PORT;
 					if (!rawPort.isBlank())
 					{
@@ -76,28 +76,33 @@ public class MainConsole
 				{
 					out.println("Give localization to file you want to send: ");
 					String localization = in.nextLine();
+					// String localization = "I:\\Obrazy\\ubcd537.iso";
 
 					out.print("Enter remote host (IP/name): ");
 					out.flush();
 					String host = in.nextLine();
+					// String host = "localhost";
 
 					out.print("Enter remote port [" + DEFAULT_PORT + "]: ");
 					out.flush();
-					int port = in.nextInt();
+					String rawPort = in.nextLine();
+					// String rawPort = "";
+					int port = DEFAULT_PORT;
+					if (!rawPort.isBlank())
+					{
+						try
+						{
+							port = Integer.parseInt(rawPort);
+						}
+						catch (NumberFormatException e)
+						{
+							err.println("[ERROR] Wrong port specified");
+							return;
+						}
+					}
+					Sender sender = new Sender(localization, host, port);
+					sender.sendFile();
 
-					try
-					{
-						Sender sender = new Sender(localization, host, port);
-						sender.sendFile();
-					}
-					catch (SocketException e)
-					{
-						err.println("[ERROR] I can't open socket, please check system permmisions");
-					}
-					catch (UnknownHostException e)
-					{
-						err.println("[ERROR] I can't find given host, please try again.");
-					}
 					break;
 				}
 				else
@@ -110,3 +115,5 @@ public class MainConsole
 		}
 	}
 }
+//FIXME Shouting can't open a socket when can't write/read from/to file.
+//FIXME Mappiing values
