@@ -92,8 +92,4 @@ public class Transfer
 		return in.nextLine();
 	}
 
-	protected int map(int value, int inputBegin, int inputEnd, int outputBegin, int outputEnd)
-	{
-		return outputBegin + ((outputEnd - outputBegin) / (inputEnd - inputBegin)) * (value - inputBegin);
-	}
 }

@@ -42,6 +42,7 @@ public class Reciver extends Transfer
 				PrintWriter err = new PrintWriter(System.err, true);)
 		{
 			String readed;
+			StatusPrinter sp = null;
 			try
 			{
 				out.print("I'm waiting for incoming files....");
@@ -77,15 +78,19 @@ public class Reciver extends Transfer
 											StandardOpenOption.WRITE, StandardOpenOption.CREATE))
 									{
 										int maximum = (int) (fileSize / MAX_PAYLOAD_SIZE);
+										sp = new StatusPrinter(out, maximum);
+										Thread printerThread = new Thread(sp);
+										printerThread.start();
 										for (int i = 0; i < maximum + 1; i++)
 										{
 											byte[] arr = reciveByteArray();
 											buffer = ByteBuffer.allocate(arr.length);
 											buffer.put(arr);
 											buffer.rewind();
-											out.print("\f Transfered " + map(i, 0, maximum, 0, 100) + "%");
-											out.flush();
 											fc.write(buffer);
+											sp.goAhead();
+											// TODO Printing
+											// out.println("Transfered " + i + " " + maximum);
 										}
 										out.println("Transfer completed");
 									}
@@ -126,7 +131,6 @@ public class Reciver extends Transfer
 			}
 			catch (Exception e)
 			{
-				e.printStackTrace();
 				err.println("Unexcpeted error occured");
 			}
 			finally
@@ -134,6 +138,10 @@ public class Reciver extends Transfer
 				if (socket != null)
 				{
 					socket.close();
+				}
+				if (sp != null)
+				{
+					sp.printerThread.interrupt();
 				}
 			}
 		}

@@ -43,8 +43,8 @@ public class MainConsole
 				if (mode == SERVER_MODE)
 				{
 					out.println("Give me full path to folder where you want to save downloaded files: ");
-					String localization = in.nextLine();
-					// String localization = "I:";
+					// String localization = in.nextLine();
+					String localization = "I:";
 					File file = new File(localization);
 					if (!file.isDirectory())
 					{
@@ -53,8 +53,8 @@ public class MainConsole
 					}
 					out.print("Write me port on which i have to listen [" + DEFAULT_PORT + "]: ");
 					out.flush();
-					String rawPort = in.nextLine();
-					// String rawPort = "";
+					// String rawPort = in.nextLine();
+					String rawPort = "";
 					int port = DEFAULT_PORT;
 					if (!rawPort.isBlank())
 					{
@@ -75,18 +75,18 @@ public class MainConsole
 				else if (mode == CLIENT_MODE)
 				{
 					out.println("Give localization to file you want to send: ");
-					String localization = in.nextLine();
-					// String localization = "I:\\Obrazy\\ubcd537.iso";
+					// String localization = in.nextLine();
+					String localization = "I:\\Obrazy\\ubcd537.iso";
 
 					out.print("Enter remote host (IP/name): ");
 					out.flush();
-					String host = in.nextLine();
-					// String host = "localhost";
+					// String host = in.nextLine();
+					String host = "localhost";
 
 					out.print("Enter remote port [" + DEFAULT_PORT + "]: ");
 					out.flush();
-					String rawPort = in.nextLine();
-					// String rawPort = "";
+					// String rawPort = in.nextLine();
+					String rawPort = "";
 					int port = DEFAULT_PORT;
 					if (!rawPort.isBlank())
 					{
@@ -116,4 +116,3 @@ public class MainConsole
 	}
 }
 //FIXME Shouting can't open a socket when can't write/read from/to file.
-//FIXME Mappiing values
